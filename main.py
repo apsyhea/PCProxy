@@ -19,13 +19,14 @@ def scrape_proxy_info(tr) -> None:
         google: str = all_td[5].text
         https: str = all_td[6].text
         last_checked: str = all_td[7].text
-        print("{:<20} {:<10} {:<5} {:<25} {:<15} {:<5} {:<5} {:<10}".format(ip_address, port, code, country, anonymity, google, https, last_checked))
         write_to_file(f"{ip_address}:{port}")
+        print("{:<20} {:<10} {:<5} {:<25} {:<15} {:<5} {:<5} {:<10}".format(ip_address, port, code, country, anonymity, google, https, last_checked))
+        
 
 
 def scrape_page(url) -> None:
     page = requests.get(url)
-    soup = BeautifulSoup(page.text, "html.parser")
+    soup: object = BeautifulSoup(page.text, "html.parser")
     all_proxy_div: str = soup.find('div', class_='table-responsive')
     top_table: int = all_proxy_div.find('table')
     all_tr: str = top_table.find_all('tr')
@@ -35,9 +36,9 @@ def scrape_page(url) -> None:
         thread.start()
         threads.append(thread)
     for thread in threads:
-        thread.join()
+        thread.join() 
 
-def write_to_file(proxy):
+def write_to_file(proxy) -> None:
     with open("proxy.txt", "a") as file:
         file.write(proxy + "\n")
 

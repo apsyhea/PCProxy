@@ -1,14 +1,13 @@
+import asyncio
 from bs4 import BeautifulSoup
-import requests
-import threading
-
+import aiohttp
 
 print("{:<20} {:<10} {:<5} {:<25} {:<15} {:<5} {:<5} {:<10}".format(
     'IP Address', 'Port', 'Code', 'Country', 'Anonymity', 'Google', 'Https', 'Last Checked')
-      )
+)
 print("-----------------------------------------------------------------------------------------------------------")
 
-def scrape_proxy_info(tr) -> None:
+async def scrape_proxy_info(tr) -> None:
     all_td: str = tr.find_all('td')
     if len(all_td) > 0:
         ip_address: str = all_td[0].text
@@ -21,22 +20,20 @@ def scrape_proxy_info(tr) -> None:
         last_checked: str = all_td[7].text
         write_to_file(f"{ip_address}:{port}")
         print("{:<20} {:<10} {:<5} {:<25} {:<15} {:<5} {:<5} {:<10}".format(ip_address, port, code, country, anonymity, google, https, last_checked))
-        
 
-
-def scrape_page(url) -> None:
-    page = requests.get(url)
-    soup: object = BeautifulSoup(page.text, "html.parser")
-    all_proxy_div: str = soup.find('div', class_='table-responsive')
-    top_table: int = all_proxy_div.find('table')
-    all_tr: str = top_table.find_all('tr')
-    threads: list = []
-    for tr in all_tr:
-        thread = threading.Thread(target=scrape_proxy_info, args=(tr,))
-        thread.start()
-        threads.append(thread)
-    for thread in threads:
-        thread.join() 
+async def scrape_page(url) -> None:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            page: str = await response.text()
+            soup: str = BeautifulSoup(page, "html.parser")
+            all_proxy_div: str = soup.find('div', class_='table-responsive')
+            top_table: str = all_proxy_div.find('table')
+            all_tr: str = top_table.find_all('tr')
+            tasks: list = []
+            for tr in all_tr:
+                task: str = asyncio.create_task(scrape_proxy_info(tr))
+                tasks.append(task)
+            await asyncio.gather(*tasks)
 
 def write_to_file(proxy) -> None:
     with open("proxy.txt", "a") as file:
@@ -44,4 +41,4 @@ def write_to_file(proxy) -> None:
 
 if __name__ == '__main__':
     url: str = 'https://free-proxy-list.net/'
-    scrape_page(url)
+    asyncio.run(scrape_page(url))

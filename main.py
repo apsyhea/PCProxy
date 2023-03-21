@@ -1,6 +1,6 @@
 import asyncio
 import aiohttp
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString, Tag
 from asyncio import Task
 
 # A dictionary that maps column names to their indices in the proxy table.
@@ -51,15 +51,15 @@ async def scrape_page(url) -> None:
             page: str = await response.text()
             soup: BeautifulSoup = BeautifulSoup(page, "html.parser")
             # Find the <div> element containing the proxy table.
-            all_proxy_div = soup.find('div', class_='table-responsive')
+            all_proxy_div: Tag | NavigableString | None = soup.find('div', class_='table-responsive')
             if all_proxy_div is None:
                 raise Exception('Error: div with class "table-responsive" not found')
             # Find the <table> element containing the proxy information.
-            top_table = all_proxy_div.find('table')
+            top_table: Tag | NavigableString | int | None = all_proxy_div.find('table')
             if top_table is None:
                 raise Exception('Error: table not found')
             # Extract all <tr> elements from the <table> element.
-            all_tr = top_table.find_all('tr') # type: ignore
+            all_tr:set = top_table.find_all('tr') # type: ignore
             type(all_tr)
             tasks: list = []
             # Create a task for each <tr> element and add it to the list of tasks.

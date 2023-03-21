@@ -1,6 +1,8 @@
-    print("{:<20} {:<10} {:<5} {:<25} {:<15} {:<5} {:<5} {:<10}".format(
-        'IP Address', 'Port', 'Code', 'Country', 'Anonymity', 'Google', 'Https', 'Last Checked')
-    )
-    print("------------------------------------------------------"+
-          "------------------------------------------------------"
-          )
+import math
+print((e + 6 / 2) * 4.32)
+
+from math import e
+print((math.e + 6 / 2) * 4.32)
+
+import math
+print((math.e + 6 / 2) * 4.32)
